@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>隐私政策 · 攒钱罐</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1c1c1e; --muted:#6b7280; --line:#e5e7eb;
+    --brand:#12B886; --card:#f7f8fa;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#111214; --fg:#f2f3f5; --muted:#9aa0a6; --line:#2a2d31; --card:#1a1c1f; }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    padding:0 20px 80px;
+  }
+  .wrap{max-width:720px;margin:0 auto}
+  header{padding:56px 0 28px;border-bottom:1px solid var(--line);margin-bottom:32px}
+  .logo{
+    width:56px;height:56px;border-radius:16px;
+    background:linear-gradient(145deg,#12B886,#0ca678);
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;margin-bottom:20px;
+  }
+  h1{font-size:28px;margin:0 0 8px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  h2{font-size:19px;margin:36px 0 12px;letter-spacing:-.01em}
+  h2 .num{color:var(--brand);font-weight:700;margin-right:8px}
+  p,li{color:var(--fg)}
+  ul{padding-left:20px;margin:12px 0}
+  li{margin:6px 0}
+  .hl{
+    background:var(--card);border-left:3px solid var(--brand);
+    border-radius:0 10px 10px 0;padding:16px 20px;margin:20px 0;
+  }
+  .hl strong{color:var(--brand)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:13px}
+  code{
+    background:var(--card);padding:2px 6px;border-radius:5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;
+  }
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13px}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .lang{margin-top:64px;padding-top:32px;border-top:1px solid var(--line)}
+  .lang h1{font-size:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">🪙</div>
+    <h1>隐私政策</h1>
+    <p class="sub">攒钱罐 (SavingsJar) &nbsp;·&nbsp; 生效日期：2026 年 10 月 10 日</p>
+  </header>
+
+  <div class="hl">
+    <strong>一句话总结：</strong>攒钱罐不收集你的任何数据。没有账号、不联网、不集成任何第三方
+    统计或广告 SDK。你记录的全部内容只保存在你自己的手机上。
+  </div>
+
+  <h2><span class="num">1.</span>我们收集哪些信息</h2>
+  <p><strong>我们不收集任何个人信息。</strong>具体而言：</p>
+  <table>
+    <tr><th>数据类型</th><th>是否收集</th></tr>
+    <tr><td>姓名、手机号、邮箱等身份信息</td><td>否</td></tr>
+    <tr><td>设备标识符（IDFA / IDFV / 广告标识）</td><td>否</td></tr>
+    <tr><td>位置信息</td><td>否</td></tr>
+    <tr><td>通讯录、相册、麦克风、相机</td><td>否</td></tr>
+    <tr><td>使用行为与崩溃日志</td><td>否</td></tr>
+    <tr><td>你创建的攒钱计划与存入记录</td><td>仅存储在你的设备本地</td></tr>
+  </table>
+
+  <h2><span class="num">2.</span>你的数据存储在哪里</h2>
+  <p>
+    你在攒钱罐中创建的所有内容（计划名称、目标金额、存入记录、备注）都保存在
+    <strong>你设备本地的数据库</strong>中。这些数据：
+  </p>
+  <ul>
+    <li>不会上传到任何服务器；</li>
+    <li>不会与我们或任何第三方共享；</li>
+    <li>在 App 被卸载后随之删除；</li>
+    <li>你可以随时通过 App 内的「导出 CSV」功能自行备份。</li>
+  </ul>
+
+  <h2><span class="num">3.</span>网络与第三方服务</h2>
+  <p>
+    攒钱罐<strong>不进行任何网络请求</strong>，不集成任何第三方 SDK（包括但不限于统计、
+    推送、广告、社交登录、崩溃上报类 SDK）。因此不存在向第三方共享数据的情形。
+  </p>
+
+  <h2><span class="num">4.</span>系统权限说明</h2>
+  <table>
+    <tr><th>权限</th><th>用途</th><th>是否必需</th></tr>
+    <tr>
+      <td>通知</td>
+      <td>在你主动开启「每日本地提醒」后，发送本地打卡提醒。通知由设备本地生成，不经过任何服务器。</td>
+      <td>否，默认关闭</td>
+    </tr>
+  </table>
+  <p>除上述权限外，App 不请求任何其他系统权限。</p>
+
+  <h2><span class="num">5.</span>儿童隐私</h2>
+  <p>
+    本 App 不面向 13 岁以下儿童设计，也不会有意收集儿童的个人信息。
+    由于本 App 不收集任何数据，因此不存在此类风险。
+  </p>
+
+  <h2><span class="num">6.</span>你的权利</h2>
+  <p>由于数据完全存储在你的设备上，你可以随时自行完成以下操作，无需联系我们：</p>
+  <ul>
+    <li><strong>查看：</strong>在 App 内直接浏览全部记录；</li>
+    <li><strong>修改：</strong>在 App 内编辑或删除任意计划与记录；</li>
+    <li><strong>导出：</strong>通过「我的 ▸ 导出 CSV」获取完整数据副本；</li>
+    <li><strong>删除：</strong>在 App 内删除数据，或直接卸载 App 以清除全部内容。</li>
+  </ul>
+
+  <h2><span class="num">7.</span>免责声明</h2>
+  <p>
+    攒钱罐是一个<strong>个人储蓄目标记录与规划工具</strong>。它不提供任何真实的资金存储、
+    支付、转账、结算或投资理财服务，不接入任何银行或支付通道，也不构成任何投资建议。
+    你在 App 中记录的「金额」仅为用于自我追踪的数字，不具有任何金融价值。
+  </p>
+
+  <h2><span class="num">8.</span>政策更新</h2>
+  <p>
+    如果本政策发生变更，我们会在本页面更新内容并修改顶部的生效日期。
+    若变更涉及数据收集行为的实质性变化，我们会通过 App 更新说明明确告知。
+  </p>
+
+  <h2><span class="num">9.</span>联系我们</h2>
+  <p>
+    对本政策有任何疑问，请联系：<br>
+    邮箱：<a href="mailto:your-email@example.com">your-email@example.com</a>
+  </p>
+
+  <!-- ================= English ================= -->
+  <div class="lang" lang="en">
+    <h1>Privacy Policy</h1>
+    <p class="sub">SavingsJar &nbsp;·&nbsp; Effective: October 10, 2026</p>
+
+    <div class="hl">
+      <strong>In one sentence:</strong> SavingsJar collects no data about you. There is no
+      account, no network access, and no third-party analytics or advertising SDK.
+      Everything you record stays on your own device.
+    </div>
+
+    <h2><span class="num">1.</span>Information We Collect</h2>
+    <p><strong>We collect no personal information.</strong> Specifically, we do not collect
+      identity information, device identifiers, location, contacts, photos, microphone or
+      camera data, usage analytics, or crash logs. The savings plans and deposit records you
+      create are stored only in the local database on your device.</p>
+
+    <h2><span class="num">2.</span>Where Your Data Lives</h2>
+    <p>All content you create stays in a local database on your device. It is never uploaded
+      to any server, never shared with us or any third party, and is removed when you delete
+      the app. You may export a copy at any time using the built-in CSV export feature.</p>
+
+    <h2><span class="num">3.</span>Network and Third Parties</h2>
+    <p>The app makes no network requests and integrates no third-party SDKs of any kind.
+      Consequently, no data is ever shared with third parties.</p>
+
+    <h2><span class="num">4.</span>Permissions</h2>
+    <p>The app may request notification permission, solely to deliver locally generated
+      reminder notifications when you explicitly enable the daily reminder. Reminders are
+      created on-device and do not pass through any server. Notification permission is
+      optional and off by default.</p>
+
+    <h2><span class="num">5.</span>Children's Privacy</h2>
+    <p>The app is not directed to children under 13 and collects no data from anyone.</p>
+
+    <h2><span class="num">6.</span>Your Rights</h2>
+    <p>Because all data is stored locally, you can view, edit, export, and delete it entirely
+      within the app, without contacting us.</p>
+
+    <h2><span class="num">7.</span>Disclaimer</h2>
+    <p>SavingsJar is a personal savings tracking and planning tool. It does not provide real
+      money storage, payment, transfer, settlement, or investment services, does not connect
+      to any bank or payment channel, and does not constitute financial advice. The amounts
+      recorded in the app are self-tracking figures with no monetary value.</p>
+
+    <h2><span class="num">8.</span>Contact</h2>
+    <p>Email: <a href="mailto:your-email@example.com">your-email@example.com</a></p>
+  </div>
+
+  <footer>
+    © 2026 攒钱罐 SavingsJar. All rights reserved.
+  </footer>
+
+</div>
+</body>
+</html>

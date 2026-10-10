@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>技术支持 · 攒钱罐</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1c1c1e; --muted:#6b7280; --line:#e5e7eb;
+    --brand:#12B886; --card:#f7f8fa;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#111214; --fg:#f2f3f5; --muted:#9aa0a6; --line:#2a2d31; --card:#1a1c1f; }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    padding:0 20px 80px;
+  }
+  .wrap{max-width:720px;margin:0 auto}
+  header{padding:56px 0 28px;border-bottom:1px solid var(--line);margin-bottom:32px}
+  .logo{
+    width:56px;height:56px;border-radius:16px;
+    background:linear-gradient(145deg,#12B886,#0ca678);
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;margin-bottom:20px;
+  }
+  h1{font-size:28px;margin:0 0 8px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  h2{font-size:18px;margin:32px 0 10px;letter-spacing:-.01em}
+  .q{
+    background:var(--card);border-radius:14px;padding:18px 20px;margin:14px 0;
+  }
+  .q h2{margin:0 0 8px;font-size:16px;color:var(--brand)}
+  .q p{margin:0;font-size:15px;color:var(--fg)}
+  .contact{
+    background:var(--card);border-radius:14px;padding:22px 24px;margin-top:32px;
+  }
+  .contact p{margin:6px 0;font-size:15px}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">🪙</div>
+    <h1>技术支持</h1>
+    <p class="sub">攒钱罐 (SavingsJar) &nbsp;·&nbsp; 版本 1.0.0 &nbsp;·&nbsp; 更新于 2026 年 10 月 10 日</p>
+  </header>
+
+  <div class="q">
+    <h2>怎么新建一个攒钱计划？</h2>
+    <p>在「计划」标签页点右上角的「+」，或者从「挑战」页选一个模板（如 52 周挑战）直接开始。
+       填写目标金额、周期节奏和截止日期即可，之后随时可以修改。</p>
+  </div>
+
+  <div class="q">
+    <h2>可以同时管理多个计划吗？</h2>
+    <p>可以。攒钱罐就是为多计划并行设计的——旅行、相机、应急金可以各自独立推进，
+       有自己的目标、颜色和图标，互不影响。总览页会汇总显示所有计划的整体进度。</p>
+  </div>
+
+  <div class="q">
+    <h2>打卡网格里的格子点错了怎么办？</h2>
+    <p>进入计划详情页，在下方「存入记录」列表里左滑该条记录即可删除。
+       删除后对应的格子会恢复为未打卡状态。</p>
+  </div>
+
+  <div class="q">
+    <h2>为什么收不到提醒？</h2>
+    <p>请检查两处：① App 内「我的 ▸ 每日本地提醒」开关是否打开；
+       ② 系统「设置 ▸ 通知 ▸ 攒钱罐」中的允许通知是否开启。
+       提醒默认是关闭的，需要你手动开启。</p>
+  </div>
+
+  <div class="q">
+    <h2>换手机后数据会丢失吗？</h2>
+    <p>目前数据保存在本机。换机前请在「我的 ▸ 导出 CSV」中导出备份，
+       记录会保存到「文件」App 中，可随时查看。
+       如果你用 iCloud 或 iTunes 整机备份恢复，数据会一并带过去。</p>
+  </div>
+
+  <div class="q">
+    <h2>我的数据会被上传吗？</h2>
+    <p>不会。攒钱罐不联网、无账号、不集成任何第三方 SDK，所有数据只存在你的手机上。
+       详见<a href="./privacy-policy.html">隐私政策</a>。</p>
+  </div>
+
+  <div class="q">
+    <h2>这个 App 会帮我存钱或理财吗？</h2>
+    <p>不会。攒钱罐只是一个记录和规划工具，不涉及任何真实的资金交易、转账或投资理财服务。
+       你在里面记录的金额是用于自我追踪的数字。</p>
+  </div>
+
+  <div class="contact">
+    <p><strong>还有其他问题？</strong></p>
+    <p>邮箱：<a href="mailto:your-email@example.com">your-email@example.com</a></p>
+    <p style="color:var(--muted);font-size:14px">我们会尽量在 2 个工作日内回复。反馈 Bug 时请附上
+       iOS 版本和复现步骤，能帮我们更快定位问题。</p>
+  </div>
+
+  <footer>
+    © 2026 攒钱罐 SavingsJar. All rights reserved.
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+# ---------- Xcode ----------
+# XcodeGen 会根据 project.yml 重新生成工程，不需要提交
+*.xcodeproj/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+
+# 用户级设置（每个人不一样，提交了会互相冲突）
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# ---------- 构建产物 ----------
+build/
+build-*/
+DerivedData/
+*.ipa
+*.xcarchive
+*.dSYM.zip
+*.dSYM
+
+# ---------- Swift Package Manager ----------
+.swiftpm/
+.build/
+Packages/
+Package.resolved
+
+# ---------- CocoaPods（本工程不用，留着以防以后引入）----------
+Pods/
+Podfile.lock
+
+# ---------- 系统 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 编辑器 ----------
+.vscode/
+.idea/
+*.swp
+
+# ---------- 敏感文件 ----------
+# 证书、私钥、配置文件一律不要提交
+*.p12
+*.mobileprovision
+*.p8
+*.cer
+AuthKey_*.p8
+ExportOptions.plist
+.env
+.env.local

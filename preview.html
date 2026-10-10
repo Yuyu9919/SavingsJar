@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>攒钱罐 · iOS 高保真原型</title>
+<style>
+  :root{
+    --brand:#12B886;
+    --amber:#FFB703;
+    --danger:#EF476F;
+    --bg:#F2F2F7;
+    --card:#FFFFFF;
+    --label:#000000;
+    --label2:rgba(60,60,67,.60);
+    --label3:rgba(60,60,67,.32);
+    --sep:rgba(60,60,67,.12);
+    --fill:rgba(120,120,128,.12);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #d8f5ec 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #fff3d6 0%, transparent 55%),
+      #eef0f4;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:36px 16px 56px;
+    color:var(--label);
+  }
+  .page-head{text-align:center;margin-bottom:26px;max-width:640px}
+  .page-head h1{font-size:26px;margin:0 0 8px;letter-spacing:-.4px}
+  .page-head p{margin:0;color:#5b6270;font-size:14px;line-height:1.7}
+  .badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .badge{font-size:12px;padding:5px 12px;border-radius:999px;background:#fff;border:1px solid rgba(0,0,0,.06);color:#41474f;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+  .badge b{color:var(--brand)}
+
+  /* ---------- 手机外框 ---------- */
+  .stage{transform-origin:top center}
+  .phone{
+    position:relative;
+    width:414px;height:868px;
+    background:#1c1c1e;
+    border-radius:58px;
+    padding:12px;
+    box-shadow:0 40px 80px -20px rgba(16,24,40,.35), 0 0 0 2px rgba(255,255,255,.35) inset;
+  }
+  .phone::after{content:"";position:absolute;inset:12px;border-radius:46px;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset}
+  .viewport{
+    position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:var(--bg);
+    display:flex;flex-direction:column;
+  }
+  .island{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:112px;height:30px;background:#000;border-radius:20px;z-index:60}
+  .statusbar{
+    height:54px;flex:0 0 54px;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 30px 0;font-size:14px;font-weight:600;letter-spacing:.2px;position:relative;z-index:50;
+  }
+  .statusbar .icons{display:flex;gap:5px;align-items:center}
+  .statusbar svg{display:block}
+
+  .screens{flex:1;position:relative;overflow:hidden}
+  .screen{
+    position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+    padding:0 16px 24px;
+    scrollbar-width:none;opacity:0;pointer-events:none;transform:translateX(8px);
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .screen::-webkit-scrollbar{display:none}
+  .screen.active{opacity:1;pointer-events:auto;transform:none}
+  .screen.has-tabbar{padding-bottom:100px}
+
+  .navlarge{padding:6px 0 14px}
+  .navlarge h2{margin:0;font-size:32px;letter-spacing:-.8px;font-weight:800}
+  .navinline{
+    position:sticky;top:0;z-index:20;background:rgba(242,242,247,.86);backdrop-filter:blur(18px);
+    margin:0 -16px 12px;padding:8px 16px;display:flex;align-items:center;gap:8px;
+    border-bottom:1px solid transparent;
+  }
+  .navinline .title{font-size:17px;font-weight:600;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .iconbtn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--brand);font-size:19px}
+  .iconbtn.plus{font-size:24px;font-weight:300;border-radius:50%}
+
+  .card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  .card+.card,.stack>*+*{margin-top:14px}
+  .stack{display:flex;flex-direction:column}
+  .stack>*+*{margin-top:14px}
+
+  .row{display:flex;align-items:center;gap:10px}
+  .spacer{flex:1}
+  .muted{color:var(--label2)}
+  .tiny{font-size:12px}
+  .small{font-size:13px}
+  .mono{font-variant-numeric:tabular-nums}
+
+  .big-amount{font-size:38px;font-weight:800;letter-spacing:-1.4px;font-variant-numeric:tabular-nums;line-height:1.1}
+
+  .ringwrap{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .ringcenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tiles.three{grid-template-columns:repeat(3,1fr)}
+  .tile{background:var(--card);border-radius:18px;padding:12px}
+  .tile .ico{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px}
+  .tile .val{font-size:17px;font-weight:800;letter-spacing:-.3px}
+  .tile .lab{font-size:11px;color:var(--label2);margin-top:2px}
+
+  .planrow{display:flex;align-items:center;gap:10px}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto}
+  .bar{height:8px;border-radius:99px;background:var(--fill);overflow:hidden;margin-top:12px}
+  .bar > i{display:block;height:100%;border-radius:99px;transition:width .55s cubic-bezier(.34,1.2,.64,1)}
+
+  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;white-space:nowrap}
+  .seg{display:flex;background:var(--fill);border-radius:10px;padding:2px}
+  .seg button{flex:1;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;padding:7px 0;border-radius:8px;color:var(--label);cursor:pointer;transition:background .2s}
+  .seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+  .grid-cells{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+  .cell{
+    height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;
+    background:rgba(58,134,255,.07);color:var(--label2);cursor:pointer;
+    transition:transform .15s, background .2s, color .2s;
+  }
+  .cell:active{transform:scale(.9)}
+  .cell.done{color:#fff}
+  .cell.done::after{content:"✓";font-size:13px;font-weight:800}
+  .cell.done span{display:none}
+  .cell.overdue{box-shadow:0 0 0 1.5px var(--danger) inset;color:var(--danger);background:rgba(239,71,111,.08)}
+
+  .recline{display:flex;align-items:center;gap:10px;padding:8px 0}
+  .recline+.recline{border-top:1px solid var(--sep)}
+
+  .tabbar{
+    flex:0 0 84px;display:flex;align-items:flex-start;padding-top:9px;
+    background:rgba(249,249,249,.92);backdrop-filter:blur(24px);border-top:1px solid var(--sep);
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s;
+  }
+  .phone.detail .tabbar{transform:translateY(100%);opacity:0;pointer-events:none;flex-basis:0;height:0;padding:0}
+  .tab{
+    flex:1;border:0;background:transparent;font:inherit;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:#9aa0a8;font-size:10px;font-weight:500;padding:0;
+  }
+  .tab svg{width:25px;height:25px}
+  .tab.on{color:var(--brand)}
+
+  .sheet{
+    position:absolute;left:0;right:0;bottom:0;z-index:80;
+    background:#fff;border-radius:28px 28px 0 0;
+    box-shadow:0 -12px 40px rgba(16,24,40,.22);
+    transform:translateY(105%);transition:transform .34s cubic-bezier(.32,.72,0,1);
+    padding:10px 16px 20px;
+  }
+  .sheet.open{transform:translateY(0)}
+  .grabber{width:38px;height:5px;border-radius:99px;background:rgba(60,60,67,.2);margin:0 auto 14px}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .key{
+    border:0;font:inherit;font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;
+    min-height:54px;border-radius:14px;background:var(--fill);color:var(--label);cursor:pointer;
+  }
+  .key:active{background:rgba(120,120,128,.24)}
+  .btn{
+    border:0;font:inherit;font-size:17px;font-weight:600;color:#fff;background:var(--brand);
+    width:100%;min-height:50px;border-radius:16px;cursor:pointer;margin-top:12px;
+  }
+  .btn:active{filter:brightness(.94)}
+  .btn.ghost{background:transparent;color:var(--brand);font-weight:500;min-height:36px;margin-top:6px}
+  .btn:disabled{opacity:.4;cursor:default}
+
+  .confetti{position:absolute;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+  .cf{position:absolute;width:9px;height:6px;border-radius:2px;animation:fall 2.2s linear forwards}
+  @keyframes fall{to{transform:translateY(880px) rotate(540deg);opacity:.1}}
+
+  .toast{
+    position:absolute;left:50%;bottom:120px;transform:translate(-50%,20px);z-index:95;
+    background:rgba(28,28,30,.86);color:#fff;font-size:13px;font-weight:600;
+    padding:9px 16px;border-radius:999px;opacity:0;transition:.28s;backdrop-filter:blur(10px);
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  .hint{font-size:12px;color:#7a8290;text-align:center;margin-top:22px;line-height:1.9}
+  .hint kbd{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:6px;padding:2px 7px;font-size:11px;font-family:inherit}
+
+  @media (max-width:900px){
+    .stage{transform:scale(.82)}
+    .page-head h1{font-size:22px}
+  }
+  @media (max-width:460px){
+    .stage{transform:scale(.62)}
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>攒钱罐 · 一个 App 装下所有攒钱计划</h1>
+  <p>下面是可以在浏览器里直接点击体验的高保真原型，交互逻辑与 Swift 版一一对应。</p>
+  <div class="badges">
+    <span class="badge"><b>SwiftUI</b> + SwiftData</span>
+    <span class="badge">iOS 17+</span>
+    <span class="badge">多计划并存</span>
+    <span class="badge">挑战打卡网格</span>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="island"></div>
+    <div class="statusbar">
+      <span id="clock">9:41</span>
+      <span class="icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 11.2 6.1 8.6a3.6 3.6 0 0 1 4.8 0l-2.4 2.6Zm-4-4.4L2.3 4.5a9 9 0 0 1 12.4 0l-2.2 2.3a5.9 5.9 0 0 0-8 0Z"/></svg>
+        <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.4 2.4 0 0 0 0-4Z" fill="currentColor" opacity=".5"/></svg>
+      </span>
+    </div>
+
+    <div class="screens" id="screens">
+      <section class="screen has-tabbar" id="s-dashboard"></section>
+      <section class="screen has-tabbar" id="s-plans"></section>
+      <section class="screen has-tabbar" id="s-challenges"></section>
+      <section class="screen has-tabbar" id="s-profile"></section>
+      <section class="screen" id="s-detail"></section>
+    </div>
+
+    <nav class="tabbar" id="tabbar"></nav>
+    <div class="sheet" id="sheet"></div>
+    <div class="confetti" id="confetti"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<div class="hint">
+  <kbd>点击底部标签</kbd> 切换页面 · <kbd>点击计划卡片</kbd> 进入详情 · <kbd>点击格子</kbd> 打卡存入
+</div>
+
+<script>
+/* ============ 状态 ============ */
+const SYM = '¥';
+const plans = [
+  { id:'travel', name:'北海道旅行基金', emoji:'🏖️', color:'#3A86FF', mode:'week52', modeName:'52 周挑战',
+    target:13780, base:10, checked:26, deadline:'2027-06-01', note:'机票 + 温泉 + 拉面', weeks:52,
+    saved:0, records:[] },
+  { id:'mac', name:'换台 MacBook', emoji:'💻', color:'#7C6BFF', mode:'fixed', modeName:'定额存',
+    target:18000, saved:7200, deadline:'2027-03-15', note:'每月 1500' },
+  { id:'gift', name:'给爸妈的红包', emoji:'🎁', color:'#EF476F', mode:'free', modeName:'自由存',
+    target:5000, saved:3200, note:'' },
+  { id:'hike', name:'徒步装备', emoji:'🏔️', color:'#8AC926', mode:'fixed', modeName:'定额存',
+    target:3600, saved:3600, note:'' }
+];
+
+// 52 周计划：已点亮前 26 格
+plans[0].records = [];
+for(let i=1;i<=26;i++) plans[0].records.push({ week:i, amount:i*10, date:dayAgo(27-i) });
+
+function dayAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d; }
+function fmtDate(d){ return (d.getMonth()+1)+'月'+d.getDate()+'日'; }
+function money(v,dec){ const n=Math.round(v*(dec?100:1))/ (dec?100:1);
+  return SYM+n.toLocaleString('en-US',{minimumFractionDigits:dec?2:0,maximumFractionDigits:dec?2:0}); }
+function compact(v){ return v>=10000 ? SYM+(v/10000).toFixed(2)+'万' : money(v); }
+
+function planSaved(p){
+  if(p.mode==='week52') return p.records.reduce((s,r)=>s+r.amount,0);
+  return p.saved;
+}
+function nextStep(p){
+  if(p.mode!=='week52') return null;
+  for(let i=26;i<=52;i++){ if(!p.records.some(r=>r.week===i)) return {week:i, amount:i*10}; }
+  return null;
+}
+
+const state = { tab:'dashboard', planId:null, detailSeg:'progress', keypad:'', keypadPlan:null, keypadWeek:null };
+
+/* ============ 小组件 ============ */
+function ring(size, stroke, progress, color, inner=''){
+  const r=(size-stroke)/2, c=2*Math.PI*r, off=c*(1-Math.min(progress,1));
+  return `<div class="ringwrap" style="width:${size}px;height:${size}px">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-opacity=".15" stroke-width="${stroke}"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round"
+        stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 ${size/2} ${size/2})"
+        style="transition:stroke-dashoffset .6s cubic-bezier(.34,1.2,.64,1)"/>
+    </svg>
+    <div class="ringcenter">${inner}</div>
+  </div>`;
+}
+
+function planCard(p, withChevron){
+  const saved=planSaved(p), prog=p.target?saved/p.target:0, done=saved>=p.target;
+  return `<div class="card" data-plan="${p.id}" style="cursor:pointer">
+    <div class="planrow">
+      <div class="avatar" style="background:${p.color}22">${p.emoji}</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:15px;font-weight:700">${p.name}</div>
+        <div class="tiny muted">${p.modeName}</div>
+      </div>
+      ${done
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="${p.color}"><path d="M12 1.6 14.7 4l3.6-.2.9 3.5 3 2-1.6 3.2 1.6 3.2-3 2-.9 3.5-3.6-.2L12 22.4 9.3 20l-3.6.2-.9-3.5-3-2L3.4 11.5 1.8 8.3l3-2 .9-3.5L9.3 4 12 1.6Zm-1 13.7 5-5-1.4-1.4-3.6 3.6-1.8-1.8-1.3 1.4 3.1 3.2Z"/></svg>`
+        : `<div style="font-size:14px;font-weight:800;color:${p.color}" class="mono">${Math.round(prog*100)}%</div>`}
+      ${withChevron?`<svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(60,60,67,.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5 6 6.5l-4.5 5"/></svg>`:''}
+    </div>
+    <div class="bar"><i style="width:${Math.min(prog,1)*100}%;background:${p.color}"></i></div>
+    <div class="row" style="margin-top:9px">
+      <span class="small mono" style="font-weight:700">${money(saved)}</span>
+      <span class="tiny muted">/ ${compact(p.target)}</span>
+      <span class="spacer"></span>
+      ${done?`<span class="tiny" style="color:${p.color};font-weight:700">已达成</span>`
+        :(p.deadline?`<span class="tiny muted">截止 ${p.deadline}</span>`:'')}
+    </div>
+  </div>`;
+}
+
+/* ============ 总览 ============ */
+function renderDashboard(){
+  const all=plans;
+  const totalSaved=all.reduce((s,p)=>s+planSaved(p),0);
+  const totalTarget=all.reduce((s,p)=>s+p.target,0);
+  const prog=totalTarget?totalSaved/totalTarget:0;
+  const active=all.filter(p=>planSaved(p)<p.target).length;
+  const done=all.filter(p=>planSaved(p)>=p.target).length;
+  const next=nextStep(plans[0]);
+
+  const days=['一','二','三','四','五','六','日'];
+  const bars=[0,120,60,0,300,150,next?next.amount:0];
+  const maxBar=Math.max(...bars,1);
+
+  document.getElementById('s-dashboard').innerHTML=`
+    <div class="navlarge">
+      <div class="row"><h2>我的攒钱罐</h2><span class="spacer"></span>
+        <div class="iconbtn plus" onclick="toast('这里可以新建计划')">＋</div>
+      </div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,rgba(18,184,134,.10),#fff 60%);padding:20px">
+      <div class="row" style="align-items:flex-start;gap:16px">
+        <div style="flex:1;min-width:0">
+          <div class="small muted">累计已攒</div>
+          <div class="big-amount" style="color:#111">${money(totalSaved)}</div>
+          <div class="tiny muted" style="margin-top:4px">目标 ${compact(totalTarget)}</div>
+        </div>
+        ${ring(92,11,prog,'#12B886',
+          `<div style="font-size:17px;font-weight:800" class="mono">${Math.round(prog*100)}%</div>
+           <div style="font-size:10px;color:var(--label2)">完成</div>`)}
+      </div>
+      <div class="tiles" style="margin-top:16px">
+        <div class="tile" style="background:rgba(18,184,134,.07);border-radius:14px;padding:10px">
+          <div style="font-size:11px;color:var(--label2)">进行中</div>
+          <div style="font-size:17px;font-weight:800">${active} 个</div>
+        </div>
+        <div class="tile" style="background:rgba(255,183,3,.12);border-radius:14px;padding:10px">
+          <div style="font-size:11px;color:var(--label2)">已完成</div>
+          <div style="font-size:17px;font-weight:800">${done} 个</div>
+        </div>
+      </div>
+    </div>
+
+    ${next?`
+    <div class="card stack" style="margin-top:14px">
+      <div class="row">
+        <div class="avatar" style="background:rgba(18,184,134,.14);color:#12B886;font-size:19px">🔔</div>
+        <div>
+          <div class="tiny muted">今天该存</div>
+          <div style="font-size:19px;font-weight:800" class="mono">${money(next.amount)}</div>
+        </div>
+        <span class="spacer"></span>
+        <button class="btn" style="width:auto;padding:0 18px;margin:0;min-height:44px;font-size:15px"
+          onclick="openDetail('travel');openSheet(${next.amount},'travel',${next.week})">去打卡</button>
+      </div>
+    </div>`:''}
+
+    <div class="card" style="margin-top:14px">
+      <div class="row"><div style="font-size:15px;font-weight:700">近 7 天存入</div><span class="spacer"></span>
+        <span class="tiny muted">合计 ${money(bars.reduce((a,b)=>a+b,0))}</span></div>
+      <div style="display:flex;align-items:flex-end;gap:6px;margin-top:14px;height:96px">
+        ${bars.map((v,i)=>`
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%">
+            <div style="width:100%;max-width:26px;height:${v?Math.max(8,74*v/maxBar):6}px;border-radius:4px;background:${v?'linear-gradient(180deg,#3fd6a8,#12B886)':'var(--fill)'};transition:height .5s"></div>
+            <div style="font-size:10px;color:var(--label2)">${days[i]}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="row" style="margin-bottom:10px">
+        <div><div style="font-size:15px;font-weight:700">攒钱计划</div>
+        <div class="tiny muted">共 ${plans.length} 个</div></div>
+        <span class="spacer"></span>
+        <div class="small" style="color:var(--brand);font-weight:600" onclick="go('plans')">全部</div>
+      </div>
+      <div class="stack">${plans.slice(0,4).map(p=>planCard(p,true)).join('')}</div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="row">
+        <div class="avatar" style="background:rgba(255,183,3,.16);color:#FFB703">🔥</div>
+        <div><div style="font-size:15px;font-weight:700">连续打卡 6 天</div>
+        <div class="tiny muted">最长记录 14 天，保持住</div></div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ 计划列表 ============ */
+let planFilter='进行中';
+function renderPlans(){
+  const list = planFilter==='已完成'
+    ? plans.filter(p=>planSaved(p)>=p.target)
+    : planFilter==='已归档' ? [] : plans.filter(p=>planSaved(p)<p.target);
+
+  document.getElementById('s-plans').innerHTML=`
+    <div class="navlarge"><div class="row"><h2>攒钱计划</h2><span class="spacer"></span>
+      <div class="iconbtn plus" onclick="toast('这里可以新建计划')">＋</div></div></div>
+    <div class="seg">
+      ${['进行中','已完成','已归档'].map(t=>`<button class="${t===planFilter?'on':''}" onclick="planFilter='${t}';renderPlans()">${t}</button>`).join('')}
+    </div>
+    <div class="stack" style="margin-top:14px">
+      ${list.length?list.map(p=>planCard(p,true)).join('')
+        :`<div class="card" style="text-align:center;padding:36px 16px">
+            <div style="font-size:36px">🗂️</div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px">这里还没有计划</div>
+            <div class="small muted" style="margin-top:4px">换个筛选条件看看</div>
+          </div>`}
+    </div>
+  `;
+}
+
+/* ============ 挑战 ============ */
+const templates=[
+  {emoji:'🏆',color:'#FF9F1C',title:'52 周存钱挑战',tag:'每周比上周多存 10 元，一年 13780 元',total:13780,base:10,period:'52 周'},
+  {emoji:'🌱',color:'#12B886',title:'365 天存钱挑战',tag:'每天多存 1 元，一年 66795 元',total:66795,base:1,period:'365 天'},
+  {emoji:'📈',color:'#7C6BFF',title:'12 月阶梯存',tag:'每月递增 100 元，一年 7800 元',total:7800,base:100,period:'12 期'},
+  {emoji:'☕️',color:'#00BBF9',title:'每天 10 元',tag:'一杯奶茶钱，一年攒 3650 元',total:3650,base:10,period:'365 天'},
+  {emoji:'💼',color:'#3A86FF',title:'每月 500 元',tag:'发薪日自动存，一年 6000 元',total:6000,base:500,period:'12 期'}
+];
+function renderChallenges(){
+  document.getElementById('s-challenges').innerHTML=`
+    <div class="navlarge"><h2>存钱挑战</h2></div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:15px;font-weight:700">有节奏地攒，比硬攒更容易坚持</div>
+      <div class="small muted" style="margin-top:6px;line-height:1.6">选一个挑战，App 会帮你把每一格都排好日期，每天点一格就行。</div>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <div><div style="font-size:15px;font-weight:700">进行中的挑战</div>
+      <div class="tiny muted">共 1 个</div></div>
+    </div>
+    <div class="card" data-plan="travel" style="margin-bottom:18px;cursor:pointer">
+      <div class="planrow">
+        <div class="avatar" style="background:#3A86FF22">🏖️</div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:700">北海道旅行基金</div>
+        <div class="tiny muted">已点亮 ${plans[0].records.length} / 52 格</div></div>
+        <svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(60,60,67,.3)" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5 6 6.5l-4.5 5"/></svg>
+      </div>
+      <div class="bar"><i style="width:${plans[0].records.length/52*100}%;background:#3A86FF"></i></div>
+    </div>
+
+    <div style="font-size:15px;font-weight:700;margin-bottom:10px">挑战模板</div>
+    <div class="stack">
+      ${templates.map((t,i)=>`
+        <div class="card">
+          <div class="row" style="align-items:flex-start">
+            <div class="avatar" style="background:${t.color}22">${t.emoji}</div>
+            <div style="flex:1"><div style="font-size:15px;font-weight:700">${t.title}</div>
+            <div class="tiny muted" style="margin-top:3px;line-height:1.5">${t.tag}</div></div>
+          </div>
+          <div class="row" style="margin-top:14px;gap:16px">
+            <div style="flex:1"><div style="font-size:10px;color:var(--label2)">总目标</div><div style="font-size:13px;font-weight:700" class="mono">${compact(t.total)}</div></div>
+            <div style="flex:1"><div style="font-size:10px;color:var(--label2)">每期基数</div><div style="font-size:13px;font-weight:700" class="mono">${money(t.base)}</div></div>
+            <div style="flex:1"><div style="font-size:10px;color:var(--label2)">周期</div><div style="font-size:13px;font-weight:700">${t.period}</div></div>
+          </div>
+          <button class="btn" style="background:${t.color};font-size:15px;min-height:44px" onclick="toast('已创建「'+'${t.title}'+'」')">开始这个挑战</button>
+        </div>`).join('')}
+    </div>
+  `;
+}
+
+/* ============ 我的 ============ */
+function renderProfile(){
+  const totalSaved=plans.reduce((s,p)=>s+planSaved(p),0);
+  const done=plans.filter(p=>planSaved(p)>=p.target).length;
+  const bars=[80,0,120,200,0,150,300,60,0,180,240,0,90,0,320,140,0,60,210,0,150,0,280,120,0,0,190,70,0,240];
+  const maxBar=Math.max(...bars,1);
+  document.getElementById('s-profile').innerHTML=`
+    <div class="navlarge"><h2>我的</h2></div>
+    <div class="card">
+      <div class="small muted">累计攒下</div>
+      <div class="big-amount" style="margin-top:2px">${money(totalSaved)}</div>
+      <div class="tiles three" style="margin-top:16px">
+        <div class="tile" style="background:rgba(18,184,134,.07);border-radius:14px;padding:10px">
+          <div style="font-size:10px;color:var(--label2)">计划总数</div><div style="font-size:17px;font-weight:800">${plans.length}</div></div>
+        <div class="tile" style="background:rgba(255,183,3,.14);border-radius:14px;padding:10px">
+          <div style="font-size:10px;color:var(--label2)">已完成</div><div style="font-size:17px;font-weight:800">${done}</div></div>
+        <div class="tile" style="background:rgba(239,71,111,.1);border-radius:14px;padding:10px">
+          <div style="font-size:10px;color:var(--label2)">连续天数</div><div style="font-size:17px;font-weight:800">6</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div style="font-size:15px;font-weight:700">近 30 天存入</div>
+      <div class="tiny muted" style="margin-top:2px">最长连续 14 天 · 共 26 笔记录</div>
+      <div style="display:flex;align-items:flex-end;gap:2px;margin-top:14px;height:88px">
+        ${bars.map(v=>`<div style="flex:1;height:${v?Math.max(6,78*v/maxBar):5}px;border-radius:3px;background:${v?'linear-gradient(180deg,#3fd6a8,#12B886)':'var(--fill)'}"></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">设置</div>
+      <div class="row" style="min-height:44px">
+        <div class="small">货币符号</div><span class="spacer"></span>
+        <div class="small" style="color:var(--brand);font-weight:600">¥ ›</div>
+      </div>
+      <div style="height:1px;background:var(--sep)"></div>
+      <div class="row" style="min-height:44px">
+        <div class="small">触觉反馈</div><span class="spacer"></span>
+        <div style="width:48px;height:29px;border-radius:99px;background:var(--brand);position:relative">
+          <div style="position:absolute;top:2.5px;right:2.5px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--sep)"></div>
+      <div class="row" style="min-height:44px">
+        <div class="small">每日攒钱提醒 · 20:00</div><span class="spacer"></span>
+        <div style="width:48px;height:29px;border-radius:99px;background:var(--brand);position:relative">
+          <div style="position:absolute;top:2.5px;right:2.5px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">数据</div>
+      <div class="row small" style="min-height:44px;color:var(--brand);font-weight:600">导出全部记录（CSV）</div>
+      <div style="height:1px;background:var(--sep)"></div>
+      <div class="row small" style="min-height:44px"><span>版本</span><span class="spacer"></span><span class="muted">1.0.0</span></div>
+      <div class="tiny muted" style="margin-top:8px;line-height:1.6">所有数据都保存在本机，不会上传。</div>
+    </div>
+  `;
+}
+
+/* ============ 详情 ============ */
+function renderDetail(){
+  const p=plans.find(x=>x.id===state.planId) || plans[0];
+  const saved=planSaved(p), prog=p.target?saved/p.target:0, remain=Math.max(p.target-saved,0);
+  const next=nextStep(p);
+
+  // 52 周格子
+  let cells='';
+  if(p.mode==='week52'){
+    for(let i=1;i<=52;i++){
+      const rec=p.records.find(r=>r.week===i);
+      const overdue=!rec && i<=26;
+      cells+=`<div class="cell ${rec?'done':''} ${overdue?'overdue':''}"
+        ${rec?'':`onclick="checkIn(${i})"`}
+        style="${rec?`background:${p.color}`:''}"><span>${i}</span></div>`;
+    }
+  }
+
+  const records=[...p.records].sort((a,b)=>b.week-a.week).slice(0,8);
+
+  document.getElementById('s-detail').innerHTML=`
+    <div class="navinline">
+      <div class="iconbtn" onclick="closeDetail()">
+        <svg width="11" height="19" viewBox="0 0 11 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5 2 9.5l7.5 8"/></svg>
+      </div>
+      <div class="title">${p.name}</div>
+      <div class="iconbtn">⋯</div>
+    </div>
+
+    <div class="card" style="text-align:center;padding:24px 16px">
+      ${ring(200,16,prog,p.color,
+        `<div style="font-size:30px;line-height:1">${p.emoji}</div>
+         <div style="font-size:22px;font-weight:800;margin-top:6px" class="mono">${money(saved)}</div>
+         <div class="tiny muted" style="margin-top:2px">目标 ${compact(p.target)}</div>`)}
+      ${prog>=1?`<div style="margin-top:12px"><span class="small" style="color:${p.color};font-weight:700;background:${p.color}1f;padding:5px 14px;border-radius:99px">✓ 目标已达成</span></div>`:''}
+    </div>
+
+    <div class="tiles" style="margin-top:14px">
+      <div class="tile"><div class="ico" style="background:${p.color}22;color:${p.color}">🏁</div>
+        <div class="val mono">${compact(remain)}</div><div class="lab">还差</div></div>
+      <div class="tile"><div class="ico" style="background:rgba(255,183,3,.18);color:#FFB703">📅</div>
+        <div class="val mono">${next?money(next.amount):'—'}</div><div class="lab">${next?'下一格':'已全部点亮'}</div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="row"><span style="font-size:15px;font-weight:700">${p.modeName}</span><span class="spacer"></span>
+        <span class="tiny muted">${p.deadline||'未设截止'}</span></div>
+      <div class="row" style="margin-top:12px;gap:20px">
+        <div><div style="font-size:10px;color:var(--label2)">开始</div><div class="small" style="font-weight:700">9月1日</div></div>
+        <div><div style="font-size:10px;color:var(--label2)">基数</div><div class="small" style="font-weight:700">${money(p.base||0)}</div></div>
+        <div><div style="font-size:10px;color:var(--label2)">总格数</div><div class="small" style="font-weight:700">${p.mode==='week52'?52:'—'}</div></div>
+      </div>
+      ${p.note?`<div class="tiny muted" style="margin-top:10px">${p.note}</div>`:''}
+    </div>
+
+    ${p.mode==='week52'?`
+    <div class="card" style="margin-top:14px">
+      <div class="row"><div><div style="font-size:15px;font-weight:700">打卡格子</div>
+        <div class="tiny muted">已点亮 ${p.records.length} / 52</div></div>
+        <span class="spacer"></span>
+        <span class="tiny" style="color:var(--danger);font-weight:700">逾期 0 格</span></div>
+      <div class="grid-cells" style="margin-top:14px">${cells}</div>
+    </div>`:''}
+
+    <div class="seg" style="margin-top:16px">
+      <button class="${state.detailSeg==='progress'?'on':''}" onclick="state.detailSeg='progress';renderDetail()">进度</button>
+      <button class="${state.detailSeg==='records'?'on':''}" onclick="state.detailSeg='records';renderDetail()">记录</button>
+    </div>
+
+    ${state.detailSeg==='progress'?`
+      <div class="card" style="margin-top:14px">
+        <div style="font-size:15px;font-weight:700;margin-bottom:10px">攒钱节奏</div>
+        ${next?`<div class="row"><span style="color:${p.color}">➜</span>
+          <div class="small">下一笔：第 ${next.week} 期 · <b>${money(next.amount)}</b></div></div>`:'<div class="small muted">全部格子都点亮了 🎉</div>'}
+        <div style="height:1px;background:var(--sep);margin:12px 0"></div>
+        <div class="row"><div class="small">已完成进度</div><span class="spacer"></span>
+          <div class="small mono" style="font-weight:800;color:${p.color}">${Math.round(prog*100)}%</div></div>
+        <div class="bar"><i style="width:${Math.min(prog,1)*100}%;background:${p.color}"></i></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div style="font-size:15px;font-weight:700">达标测算</div>
+        <div class="tiny muted" style="margin-top:3px">按截止日期 ${p.deadline||'—'} 反推</div>
+        <div class="small" style="margin-top:10px">每天存入 <b>${money(Math.round(remain/270))}</b>，就能按时达成。</div>
+      </div>
+    `:`
+      <div style="margin-top:14px">
+        <div class="tiny muted" style="margin-bottom:8px">最近存入</div>
+        <div class="card">
+          ${records.map(r=>`
+            <div class="recline">
+              <div class="avatar" style="width:32px;height:32px;font-size:15px;background:${p.color}1f;color:${p.color}">✓</div>
+              <div><div class="small" style="font-weight:600">第 ${r.week} 期</div>
+              <div class="tiny muted">${fmtDate(r.date)}</div></div>
+              <span class="spacer"></span>
+              <div class="small mono" style="font-weight:800;color:${p.color}">+${money(r.amount)}</div>
+            </div>`).join('')||'<div class="small muted" style="padding:12px 0">还没有存入记录</div>'}
+        </div>
+      </div>
+    `}
+
+    <div style="height:110px"></div>
+
+    <div style="position:sticky;bottom:0;margin:0 -16px;padding:12px 16px;background:rgba(249,249,249,.94);backdrop-filter:blur(20px);border-top:1px solid var(--sep);display:flex;gap:12px">
+      <button class="btn" style="margin:0;background:${p.color}" onclick="openSheet(null,'${p.id}',null)">＋ 存入一笔</button>
+      ${next?`<button class="btn" style="margin:0;width:96px;background:${p.color}1f;color:${p.color}" onclick="openSheet(${next.amount},'${p.id}',${next.week})">
+        <span class="tiny">下一格</span><br><span style="font-size:14px">${money(next.amount)}</span></button>`:''}
+    </div>
+  `;
+}
+
+/* ============ 存入面板 ============ */
+function openSheet(prefill, planId, week){
+  state.keypadPlan=planId; state.keypadWeek=week;
+  state.keypad = prefill? String(Math.round(prefill)) : '';
+  renderSheet();
+  document.getElementById('sheet').classList.add('open');
+}
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('open');
+  state.keypadPlan=null; state.keypadWeek=null;
+}
+function renderSheet(){
+  const p=plans.find(x=>x.id===state.keypadPlan)||plans[0];
+  const amt=parseFloat(state.keypad)||0;
+  const quick = state.keypadWeek ? [10*p.base, 50, 100, 500] : [50,100,200,500];
+  const keys=['1','2','3','4','5','6','7','8','9','.','0','⌫'];
+  document.getElementById('sheet').innerHTML=`
+    <div class="grabber" onclick="closeSheet()"></div>
+    <div style="text-align:center">
+      <div class="tiny muted">${state.keypadWeek?'本次打卡金额':'存入金额'}</div>
+      <div style="font-size:44px;font-weight:800;letter-spacing:-1.6px;margin-top:2px;color:${amt?p.color:'var(--label3)'}" class="mono">
+        ${SYM}${state.keypad||'0'}
+      </div>
+      <div class="tiny muted" style="margin-top:4px">存入后：${money(planSaved(p)+amt)} / ${compact(p.target)}</div>
+    </div>
+    <div class="chips" style="margin-top:14px;justify-content:center">
+      ${quick.map(v=>`<div class="chip" style="background:${p.color}1f;color:${p.color}" onclick="pressKey(String(${v}))">+${money(v)}</div>`).join('')}
+      ${planSaved(p)<p.target?`<div class="chip" style="background:rgba(255,183,3,.18);color:#b98000" onclick="pressKey(String(${Math.round(p.target-planSaved(p))}))">补齐差额</div>`:''}
+    </div>
+    <div class="keypad">
+      ${keys.map(k=>`<button class="key" onclick="pressKey('${k}')">${k}</button>`).join('')}
+    </div>
+    <button class="btn" style="background:${p.color}" ${amt?'':'disabled'} onclick="confirmDeposit()">
+      ${state.keypadWeek?'点亮这一格':'确认存入'}
+    </button>
+  `;
+}
+function pressKey(k){
+  if(k==='⌫'){ state.keypad=state.keypad.slice(0,-1); }
+  else if(k==='.'){ if(!state.keypad.includes('.')) state.keypad=(state.keypad||'0')+'.'; }
+  else {
+    if(state.keypad.includes('.') && state.keypad.split('.')[1].length>=2) return;
+    state.keypad = (state.keypad==='0'? k : state.keypad + k).slice(0,9);
+  }
+  renderSheet();
+}
+function confirmDeposit(){
+  const p=plans.find(x=>x.id===state.keypadPlan)||plans[0];
+  const amt=parseFloat(state.keypad)||0;
+  const before = p.target? planSaved(p)/p.target : 0;
+
+  if(state.keypadWeek){
+    if(!p.records.some(r=>r.week===state.keypadWeek))
+      p.records.push({week:state.keypadWeek, amount:amt, date:new Date()});
+  } else {
+    p.saved = (p.saved||0) + amt;
+  }
+
+  const after = p.target? planSaved(p)/p.target : 0;
+  closeSheet();
+  render();
+  const hit=[0.25,0.5,0.75,1].find(m=>before<m&&after>=m);
+  if(hit){ confetti(); toast(hit>=1?'🎉 目标达成！':'已完成 '+Math.round(hit*100)+'%'); }
+  else toast('已存入 '+money(amt));
+}
+function checkIn(week){
+  const p=plans[0];
+  if(p.records.some(r=>r.week===week)) return;
+  const before=planSaved(p)/p.target;
+  p.records.push({week, amount:week*p.base, date:new Date()});
+  p.records.sort((a,b)=>a.week-b.week);
+  renderDetail();
+  const after=planSaved(p)/p.target;
+  const hit=[0.25,0.5,0.75,1].find(m=>before<m&&after>=m);
+  if(hit){ confetti(); toast(hit>=1?'🎉 目标达成！':'已完成 '+Math.round(hit*100)+'%'); }
+  else toast('第 '+week+' 格已点亮 · '+money(week*p.base));
+}
+
+/* ============ 导航 ============ */
+const tabs=[
+  {id:'dashboard',label:'总览',path:'M12 2.6c4.6 0 8.3 3.7 8.3 8.3S16.6 19.4 12 19.4 3.7 15.5 3.7 10.9 7.4 2.6 12 2.6Zm0 1.8v13a6.5 6.5 0 1 0 0-13Z'},
+  {id:'plans',label:'计划',path:'M12 2.8c4.5 0 8.2 3.7 8.2 8.2s-3.7 8.2-8.2 8.2-8.2-3.7-8.2-8.2S7.5 2.8 12 2.8Zm0 1.9v4.2l3.2 1.9-1 1.6-4.1-2.5V4.7h1.9Z'},
+  {id:'challenges',label:'挑战',path:'M13.5 2.5c.4 2.6-1 4-2.6 5.4C9.2 9.4 8 10.7 8 13a4 4 0 0 0 4 4c1.6 0 2.6-.9 3-2 .5.2.9.7 1 1.3.9-.9 1.5-2.2 1.5-3.6 0-4.6-3-7.6-4-10.2ZM8.6 15.4A4.6 4.6 0 0 1 7 12c0-1 .2-1.9.7-2.7C6.1 11 5 13 5 15.2 5 18.4 7.6 21 11 21c1.4 0 2.7-.5 3.7-1.3-4.6.6-6.1-1.9-6.1-4.3Z'},
+  {id:'profile',label:'我的',path:'M12 12.4a4.7 4.7 0 1 0 0-9.4 4.7 4.7 0 0 0 0 9.4Zm0-7.5a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6ZM4.2 21c0-4 3.5-7.2 7.8-7.2s7.8 3.2 7.8 7.2h-1.9c0-3-2.6-5.3-5.9-5.3S6.1 18 6.1 21H4.2Z'}
+];
+function renderTabbar(){
+  document.getElementById('tabbar').innerHTML = tabs.map(t=>`
+    <button class="tab ${state.tab===t.id?'on':''}" onclick="go('${t.id}')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="${t.path}"/></svg>
+      <span>${t.label}</span>
+    </button>`).join('');
+}
+function go(tab){
+  state.tab=tab;
+  document.getElementById('phone').classList.remove('detail');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+tab).classList.add('active');
+  renderTabbar();
+  window.tab=tab;
+}
+function openDetail(id){
+  state.planId=id; state.detailSeg='progress';
+  document.getElementById('phone').classList.add('detail');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-detail').classList.add('active');
+  renderDetail();
+  document.getElementById('s-detail').scrollTop=0;
+}
+function closeDetail(){ go('dashboard'); }
+
+function render(){ renderDashboard(); renderPlans(); renderChallenges(); renderProfile();
+  if(state.planId && document.getElementById('phone').classList.contains('detail')) renderDetail(); }
+
+/* ============ 动效 ============ */
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
+}
+function confetti(){
+  const box=document.getElementById('confetti');
+  const colors=['#12B886','#3A86FF','#7C6BFF','#F15BB5','#FF9F1C','#EF476F','#00BBF9','#8AC926'];
+  for(let i=0;i<70;i++){
+    const d=document.createElement('div');
+    d.className='cf';
+    d.style.left=Math.random()*390+'px';
+    d.style.top='-14px';
+    d.style.background=colors[i%colors.length];
+    d.style.animationDelay=(Math.random()*.6)+'s';
+    d.style.animationDuration=(1.7+Math.random()*1.1)+'s';
+    d.style.width=(5+Math.random()*8)+'px';
+    box.appendChild(d);
+    setTimeout(()=>d.remove(),3200);
+  }
+}
+
+/* ============ 事件委托 ============ */
+document.getElementById('screens').addEventListener('click',e=>{
+  const card=e.target.closest('[data-plan]');
+  if(card){ openDetail(card.dataset.plan); }
+});
+
+/* ============ 初始化 ============ */
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+}
+tick();
+render();
+go('dashboard');
+</script>
+</body>
+</html>

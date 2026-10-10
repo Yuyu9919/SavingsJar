@@ -1,0 +1,148 @@
+name: Release to App Store
+
+# 这是"正式上架"用的流水线，和 ios-build.yml（出未签名包给侧载用）不是一回事。
+# 它做三件事：用证书签名 → 归档 → 直接上传到 App Store Connect（TestFlight）。
+#
+# 触发方式：
+#   1) 在 GitHub 网页点 Run workflow（推荐，能手动选是否上传）
+#   2) 打 tag 时自动跑，如 git tag v1.0.0 && git push --tags
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: "构建完成后是否上传到 App Store Connect"
+        type: boolean
+        default: false
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    # 上架必须用 Xcode 26 + iOS 26 SDK（2026/4/28 起的硬性要求）
+    # macos-15 镜像自带 Xcode 26；若报错找不到 SDK，改回 macos-14 再用 setup-xcode 指定版本
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 选择 Xcode 26
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.0"
+
+      - name: 打印编译环境（排查问题时非常有用）
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i ios
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        run: xcodegen generate
+
+      # ---------------- 证书与描述文件 ----------------
+      # 需要先在本地准备好证书，再 base64 后存成 GitHub Secrets：
+      #   macOS 钥匙串导出 Apple Distribution 证书为 .p12
+      #   base64 -i cert.p12 | pbcopy  → 存为 BUILD_CERTIFICATE_BASE64
+      #   同样方式存 BUILD_PROVISION_PROFILE_BASE64、P12_PASSWORD、KEYCHAIN_PASSWORD
+      - name: 安装证书与描述文件
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          CERT_PATH=$RUNNER_TEMP/cert.p12
+          PP_PATH=$RUNNER_TEMP/profile.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERT_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      # ---------------- 归档 ----------------
+      - name: Archive
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project SavingsJar.xcodeproj \
+            -scheme SavingsJar \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath $RUNNER_TEMP/SavingsJar.xcarchive \
+            -allowProvisioningUpdates \
+            archive
+
+      # ---------------- 导出 ----------------
+      - name: 导出 IPA
+        run: |
+          cat > $RUNNER_TEMP/ExportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>compileBitcode</key>
+            <false/>
+          </dict>
+          </plist>
+          PLIST
+
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/SavingsJar.xcarchive \
+            -exportPath $RUNNER_TEMP/export \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -allowProvisioningUpdates
+
+          ls -lh $RUNNER_TEMP/export
+
+      - name: 保存 IPA 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: SavingsJar-release-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+
+      # ---------------- 上传到 App Store Connect ----------------
+      # 需在 App Store Connect ▸ 用户与访问 ▸ 集成 里生成 API Key，
+      # 存成三个 Secrets：ASC_KEY_ID / ASC_ISSUER_ID / ASC_PRIVATE_KEY（.p8 文件内容）
+      - name: 上传到 App Store Connect
+        if: ${{ github.event_name == 'push' || inputs.upload }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$ASC_PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8
+
+          IPA=$(ls $RUNNER_TEMP/export/*.ipa | head -1)
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA" \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --verbose
+
+      - name: 清理钥匙串
+        if: always()
+        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true

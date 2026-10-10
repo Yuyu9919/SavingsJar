@@ -1,0 +1,90 @@
+name: Build iOS
+
+# 手动触发，或 push 到 main / master 时自动构建
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    # GitHub 提供的 macOS 云端机器（这就是那台你"没有的 Mac"）
+    # 用 macos-latest 而不是写死 macos-14：GitHub 会定期淘汰旧镜像，
+    # 写死版本号的话某天会突然报 "runner image is not supported"。
+    # 侧载自用不挑 Xcode 版本，用最新的最省心。
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 选择 Xcode 版本
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        run: xcodegen generate
+
+      # ---------- 产物 1：未签名 IPA（给 iPhone 侧载用） ----------
+      - name: 构建真机版（未签名）
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project SavingsJar.xcodeproj \
+            -scheme SavingsJar \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build-device \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: 打包未签名 IPA
+        run: |
+          mkdir -p Payload
+          cp -R build-device/Build/Products/Release-iphoneos/SavingsJar.app Payload/
+          zip -qry SavingsJar-unsigned.ipa Payload
+          rm -rf Payload
+          ls -lh SavingsJar-unsigned.ipa
+
+      - name: 上传 IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SavingsJar-unsigned-ipa
+          path: SavingsJar-unsigned.ipa
+          if-no-files-found: error
+
+      # ---------- 产物 2：模拟器版（可上传 Appetize.io 在浏览器里直接玩） ----------
+      - name: 构建模拟器版
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project SavingsJar.xcodeproj \
+            -scheme SavingsJar \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build-sim \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: 打包模拟器 App
+        continue-on-error: true
+        run: |
+          cd build-sim/Build/Products/Debug-iphonesimulator
+          zip -qry ../../../../SavingsJar-simulator.zip SavingsJar.app
+          ls -lh ../../../../SavingsJar-simulator.zip
+
+      - name: 上传模拟器包
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SavingsJar-simulator
+          path: SavingsJar-simulator.zip
+          if-no-files-found: warn

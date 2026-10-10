@@ -1,0 +1,134 @@
+# Codemagic 云构建配置（界面友好版，免费额度 500 分钟/月）
+# 用法：把代码推到 GitHub → codemagic.io 用 GitHub 登录 → Add application → 选中仓库 → 直接 Start new build
+
+workflows:
+  ios-unsigned:
+    name: iOS 未签名包
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+
+    environment:
+      xcode: latest
+      vars:
+        SCHEME: SavingsJar
+
+    triggering:
+      events:
+        - push
+        - manual
+      branch_patterns:
+        - pattern: main
+          include: true
+
+    scripts:
+      - name: 安装 XcodeGen
+        script: |
+          brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        script: |
+          xcodegen generate
+
+      - name: 构建真机版（未签名）
+        script: |
+          set -o pipefail
+          xcodebuild \
+            -project SavingsJar.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build-device \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: 打包未签名 IPA
+        script: |
+          mkdir -p Payload
+          cp -R build-device/Build/Products/Release-iphoneos/SavingsJar.app Payload/
+          zip -qry SavingsJar-unsigned.ipa Payload
+          rm -rf Payload
+          ls -lh SavingsJar-unsigned.ipa
+
+      - name: 构建模拟器版（浏览器里体验用）
+        script: |
+          set -o pipefail
+          xcodebuild \
+            -project SavingsJar.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build-sim \
+            CODE_SIGNING_ALLOWED=NO \
+            build || true
+          cd build-sim/Build/Products/Debug-iphonesimulator 2>/dev/null && \
+            zip -qry ../../../../SavingsJar-simulator.zip SavingsJar.app || true
+
+    artifacts:
+      - SavingsJar-unsigned.ipa
+      - SavingsJar-simulator.zip
+
+  # ==========================================================================
+  # 上架 App Store 用（签名 → 归档 → 自动上 TestFlight）
+  # 这是 Windows 用户最省事的一条路：全程网页操作，不用碰 Mac
+  # ==========================================================================
+  ios-app-store:
+    name: iOS 上架包（自动传 TestFlight）
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+
+    # 先在 codemagic.io ▸ Teams ▸ Integrations 里添加一个 App Store Connect API Key，
+    # 名字必须和下面这行完全一致
+    integrations:
+      app_store_connect: Codemagic ASC Key
+
+    environment:
+      # 上架硬性要求：Xcode 26 + iOS 26 SDK（2026/4/28 起）
+      xcode: 26.0
+      # Codemagic 会按这个 Bundle ID 自动申请并安装证书与描述文件
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.xiaoyu.savingsjar
+      vars:
+        SCHEME: SavingsJar
+
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "v*"
+          include: true
+
+    scripts:
+      - name: 安装 XcodeGen
+        script: |
+          brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        script: |
+          xcodegen generate
+
+      - name: 配置代码签名
+        script: |
+          xcode-project use-profiles
+
+      - name: 打包 IPA
+        script: |
+          set -o pipefail
+          xcode-project build-ipa \
+            --project "$CM_BUILD_DIR/SavingsJar.xcodeproj" \
+            --scheme "$SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        # 自动提交到 TestFlight；确认稳定后可以改成 true 直接送审
+        submit_to_testflight: true
+        # 若想全自动送审，取消下面两行注释
+        # submit_to_app_store: true
+        # cancel_previous_submissions: true
