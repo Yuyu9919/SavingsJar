@@ -90,6 +90,8 @@ SavingsJar/
 - [x] 首次 commit（40 文件 / 7258 行）+ 关联远程 `github.com/Yuyu9919/SavingsJar`
 - [x] git 身份配置完成（用户名 `Yuyu9919`，匿名邮箱 `340480087+Yuyu9919@users.noreply.github.com`）
 - [x] 新增 `.gitattributes`（统一 LF 换行，避免 Windows 编辑 / macOS 构建之间的转换噪音）
+- [x] **首次云端构建通过 ✅**（Build iOS #1，commit `2234d14`，耗时 2m14s，18 个 Swift 文件一次编译成功，无需修错）
+- [x] `WORK-ACROSS-DEVICES.md` 补充「跨设备实战经验」章节（代理三条配置 / 云端产物 90 天有效期 / 到家清单）
 
 ### 待办（按优先级）
 - [ ] **推送代码到 GitHub，跑通第一次云构建**（首要任务）
@@ -113,5 +115,6 @@ SavingsJar/
 | 2026-10-10 | 生成占位 App 图标 + `tools/make_icon.py`。初始化 git 仓库。产出侧载指南。 |
 | 2026-10-10 | 产出跨设备工作流方案。清理文档里的绝对路径。 |
 | 2026-10-10 | 配置 git 身份（匿名邮箱），完成首次 commit（40 文件 / 7258 行），关联远程仓库。新增 `.gitattributes`。**待办：用户需在自己终端执行 `git push -u origin main`（AI 侧网络无法访问 github.com，返回 502）**。 |
+| 2026-10-10 | **push 成功**（远程 main = `2234d14`）。排查出网络三坑并固化配置：走系统代理 `127.0.0.1:7897` + `http.version=HTTP/1.1` + `sslBackend=openssl`。**Actions 首次构建绿灯通过（2m14s），代码零编译错误**。补充 WORK-ACROSS-DEVICES 实战章节。 |
 
 <!-- 在这里追加新的一行，不要删除上面的记录 -->
