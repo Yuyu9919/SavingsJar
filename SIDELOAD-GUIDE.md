@@ -60,6 +60,28 @@ git push -u origin main
 > 如果没弹窗而是要密码：**密码栏填 Personal Access Token，不是账号密码**
 > （GitHub 早就不支持密码推送了。Token 在 GitHub ▸ Settings ▸ Developer settings ▸ Tokens 里生成，勾 `repo` 权限）。
 
+#### 生成 Personal Access Token（30 秒，只做一次）
+
+1. 打开 <https://github.com/settings/tokens> → **Generate new token** → 选 **Tokens (classic)**
+2. Note 填 `SavingsJar`，Expiration 选 **90 days**（到期重新生成即可）
+3. 勾选权限：只勾最上面那个 **`repo`**（整组）就够
+4. 拉到底点 **Generate token** → **立刻复制**那串 `ghp_...`
+   （离开页面就再也看不到了，丢了只能重新生成）
+
+推送时如果提示 `Username`：填 `Yuyu9919`；提示 `Password`：**粘贴 token**（不是账号密码）。
+Windows 上凭证会被「凭据管理器」记住，之后不用重复输入。
+
+#### 如果 push 被拦住（公司网络常见）
+
+症状：卡住不动、`CONNECT tunnel failed, response 502`、SSL 证书错误、`Connection reset`。
+说明网络策略不允许访问 github.com。三条退路：
+
+| 退路 | 做法 | 适合 |
+|---|---|---|
+| **换网络** | 用手机热点推一次 | 最快验证 |
+| **GitHub Desktop** | 装 <https://desktop.github.com/>，图形界面登录 → Add local repository → Publish | 不熟命令行的人，最省事 |
+| **换到家里电脑推** | 见 `WORK-ACROSS-DEVICES.md`，把项目拷过去再推 | 长期方案 |
+
 ---
 
 ## 第 2 步 · 云端构建，拿到 IPA（约 8 分钟，全自动）

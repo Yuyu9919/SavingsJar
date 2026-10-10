@@ -87,6 +87,9 @@ SavingsJar/
 - [x] App 图标（占位版）+ 生成脚本
 - [x] 侧载指南、测试方案
 - [x] git 仓库初始化（`main` 分支）
+- [x] 首次 commit（40 文件 / 7258 行）+ 关联远程 `github.com/Yuyu9919/SavingsJar`
+- [x] git 身份配置完成（用户名 `Yuyu9919`，匿名邮箱 `340480087+Yuyu9919@users.noreply.github.com`）
+- [x] 新增 `.gitattributes`（统一 LF 换行，避免 Windows 编辑 / macOS 构建之间的转换噪音）
 
 ### 待办（按优先级）
 - [ ] **推送代码到 GitHub，跑通第一次云构建**（首要任务）
@@ -109,5 +112,6 @@ SavingsJar/
 | 2026-10-10 | 产出测试方案（四级阶梯 + QA 清单）。修复 ios-build.yml 的 runner 写死问题。 |
 | 2026-10-10 | 生成占位 App 图标 + `tools/make_icon.py`。初始化 git 仓库。产出侧载指南。 |
 | 2026-10-10 | 产出跨设备工作流方案。清理文档里的绝对路径。 |
+| 2026-10-10 | 配置 git 身份（匿名邮箱），完成首次 commit（40 文件 / 7258 行），关联远程仓库。新增 `.gitattributes`。**待办：用户需在自己终端执行 `git push -u origin main`（AI 侧网络无法访问 github.com，返回 502）**。 |
 
 <!-- 在这里追加新的一行，不要删除上面的记录 -->
